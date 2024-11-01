@@ -1,9 +1,6 @@
 package com.nuri.nuribackend.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.Date;
@@ -16,8 +13,9 @@ public class Ranking {
     @Id
     private Integer rankingId;
 
-    @Column(name = "user_id", nullable = false)
-    private Integer userId;
+    @OneToOne
+    @JoinColumn(name = "id", referencedColumnName = "id", nullable = false)
+    private User user;
 
     @Column(name = "msg_total_cnt", nullable = false)
     private Integer msgTotalCnt;
