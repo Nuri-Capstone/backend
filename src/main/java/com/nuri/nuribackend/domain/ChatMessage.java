@@ -9,8 +9,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class ChatMessage {
 
     @Id
-    private String msgId;       // 말풍선 ID
-    private Integer chatId;     // 채팅방 ID
+    private String id;          // feedback 저장할 때 feedback 콜렉션의 msgId 필드에 저장
+
+    private Integer chatId;     // 채팅방 ID (Chat rdbms의 기본키임)
 
     private String msgType;     // 채팅 보낸 사용자(user OR gpt)
 

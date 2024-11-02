@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface FeedbackRepository extends MongoRepository<Feedback, String> {
+
+    Feedback findByMsgId(String msgId);
 }

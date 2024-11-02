@@ -9,8 +9,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Feedback {
 
     @Id
-    private String feedbackId;
-    private String msgId;   // 피드백이 달린 말풍선 ID
+    private String id;
+
+    private String msgId;   // chatMessage 의 id의 값임(조회시 필요함)
 
     private FeedbackContent grammar;
     private FeedbackContent vocabulary;
