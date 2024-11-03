@@ -17,5 +17,4 @@ public class ChatMessageDto {
     private String msgSound;
 
     // Getters and Setters
-
 }

@@ -18,7 +18,6 @@ import com.nuri.nuribackend.domain.ChatMessage;
 import com.nuri.nuribackend.service.ChatMessageService;
 import java.util.UUID;
 
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
