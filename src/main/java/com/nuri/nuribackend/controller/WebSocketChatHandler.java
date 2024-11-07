@@ -55,8 +55,8 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         // 응답 메시지를 클라이언트에게 전송
         String responseJson = mapper.writeValueAsString(chatMessage);
         session.sendMessage(new TextMessage(responseJson));
-
     }
+
     private Integer generateNewChatId() {
         return UUID.randomUUID().hashCode();
     }
