@@ -62,16 +62,6 @@ public class SampleService {
         chatRepository.save(chat);
     }
 
-    public void saveChatMessage() {
-
-        chatMessage.setChatId(chat.getChatId());
-        chatMessage.setMsgType("user");
-        chatMessage.setMsgText("안녕 GPT야! 한국어 배우고 싶어!");
-        chatMessage.setMsgSound("S3 URL");
-
-        chatMessageRepository.save(chatMessage); // MongoDB에 저장
-    }
-
     public void saveFeedbackSample() {
 
         feedback.setMsgId(chatMessage.getId());

@@ -17,7 +17,6 @@ public class SampleInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         sampleService.saveUser();
         sampleService.saveChat();
-        sampleService.saveChatMessage();
         sampleService.saveFeedbackSample();
         sampleService.saveMonthlyFeedbackSample();
     }
