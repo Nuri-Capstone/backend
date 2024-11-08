@@ -9,6 +9,7 @@ import com.nuri.nuribackend.service.S3Service;
 import com.nuri.nuribackend.service.TranscribeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
@@ -21,6 +22,7 @@ import software.amazon.awssdk.services.transcribe.model.TranscriptionJobStatus;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -34,10 +36,12 @@ public class SocketVoiceHandler extends BinaryWebSocketHandler {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatMessageService chatMessageService;
     private final S3Service s3Service;
+    private int newChatId;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         sessions.add(session);
+        newChatId = generateNewChatId();
         log.info("Voice Connected: {} - Total sessions: {}", session.getId(), sessions.size());
     }
 
@@ -104,19 +108,26 @@ public class SocketVoiceHandler extends BinaryWebSocketHandler {
             String result = transcribeService.getTranscriptionJobResult(transcriptionJobName);
             System.out.println("Transcription Result URL: " + result);
             ChatMessage chatMessage = new ChatMessage();
-            chatMessage.setChatId(1);
-            chatMessage.setMsgType("gpt");
+            chatMessage.setMsgType("user");
             chatMessage.setMsgText(result);
             chatMessage.setMsgSound(url);
+            chatMessage.setChatId(newChatId);
+            chatMessage.setTimeStamp(LocalDateTime.now());
 
             String responseJson = mapper.writeValueAsString(chatMessage);
             session.sendMessage(new TextMessage(responseJson));
+
+            ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
+            System.out.println("Generated Chat ID: " + savedMessage.getChatId().toString());
         } else {
             System.out.println("Transcription Job Failed.");
         }
 
         transcribeClient.close();
     }
+
+
+
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
@@ -125,6 +136,7 @@ public class SocketVoiceHandler extends BinaryWebSocketHandler {
     }
 
     private Integer generateNewChatId() {
-        return UUID.randomUUID().hashCode();
+        return (int) (UUID.randomUUID().getLeastSignificantBits() & 0x7FFFFFFF);
     }
+
 }
