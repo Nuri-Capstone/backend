@@ -7,6 +7,7 @@ import com.nuri.nuribackend.domain.ChatMessage;
 import com.nuri.nuribackend.service.ChatMessageService;
 import com.nuri.nuribackend.service.S3Service;
 import com.nuri.nuribackend.service.TranscribeService;
+import com.nuri.nuribackend.service.GPTService;  // GPTService 추가
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -36,6 +37,7 @@ public class SocketVoiceHandler extends BinaryWebSocketHandler {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatMessageService chatMessageService;
     private final S3Service s3Service;
+    private final GPTService gptService;  // GPTService
     private int newChatId;
 
     @Override
@@ -119,6 +121,13 @@ public class SocketVoiceHandler extends BinaryWebSocketHandler {
 
             ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
             System.out.println("Generated Chat ID: " + savedMessage.getChatId().toString());
+
+            // GPT API
+            ChatMessage gptMessage = gptService.handleTextGPT(result);
+            gptMessage.setChatId(newChatId);
+            String gptResponseJson = mapper.writeValueAsString(gptMessage);
+            session.sendMessage(new TextMessage(gptResponseJson));
+            chatMessageRepository.save(gptMessage);
         } else {
             System.out.println("Transcription Job Failed.");
         }
