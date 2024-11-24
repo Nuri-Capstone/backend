@@ -1,7 +1,10 @@
 package com.nuri.nuribackend.domain;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -36,7 +39,6 @@ public class User {
     private byte[] userImg;
 
     @OneToMany(mappedBy = "user")       // 1명의 사용자는 여러 채팅방 생성 가능
-    @ToString.Exclude
     private List<Chat> chatList;
 
     @OneToOne(mappedBy = "user")        // 1명의 사용자에 대한 ranking 데이터는 1개 존재
