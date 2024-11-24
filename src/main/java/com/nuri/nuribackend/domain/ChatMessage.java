@@ -4,6 +4,8 @@ import jakarta.persistence.Id;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
+
 @Document(collection = "chat_message")
 @Data
 public class ChatMessage {
@@ -18,4 +20,6 @@ public class ChatMessage {
     private String msgText;     // 채팅 내용 텍스트
 
     private String msgSound;    // 채팅 내용 음성 S3 URL
+
+    private LocalDateTime timeStamp;
 }
