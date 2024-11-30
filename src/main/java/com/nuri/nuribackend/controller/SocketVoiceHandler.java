@@ -2,8 +2,11 @@ package com.nuri.nuribackend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nuri.nuribackend.dto.ChatMessageDto;
+import com.nuri.nuribackend.dto.GPT.FeedbackMessage;
 import com.nuri.nuribackend.repository.ChatMessageRepository;
 import com.nuri.nuribackend.domain.ChatMessage;
+import com.nuri.nuribackend.domain.Feedback.Feedback;
+import com.nuri.nuribackend.repository.FeedbackRepository;
 import com.nuri.nuribackend.service.ChatMessageService;
 import com.nuri.nuribackend.service.S3Service;
 import com.nuri.nuribackend.service.TranscribeService;
@@ -16,6 +19,7 @@ import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.transcribe.TranscribeClient;
@@ -31,11 +35,12 @@ import java.util.UUID;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SocketVoiceHandler extends BinaryWebSocketHandler {
+public class SocketVoiceHandler extends AbstractWebSocketHandler {
     private final ObjectMapper mapper;
     private final Set<WebSocketSession> sessions = new HashSet<>();
     private final ChatMessageRepository chatMessageRepository;
     private final ChatMessageService chatMessageService;
+    private final FeedbackRepository feedbackRepository;
     private final S3Service s3Service;
     private final GPTService gptService;  // GPTService
     private int newChatId;
@@ -45,6 +50,50 @@ public class SocketVoiceHandler extends BinaryWebSocketHandler {
         sessions.add(session);
         newChatId = generateNewChatId();
         log.info("Voice Connected: {} - Total sessions: {}", session.getId(), sessions.size());
+    }
+
+
+    // handleTextMessage for GPT feedback
+    @Override
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+
+        System.out.println("Text Message Received: " + message.getPayload());
+
+        try {
+            String payload = message.getPayload();
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            FeedbackMessage feedbackMessage = objectMapper.readValue(payload, FeedbackMessage.class);
+
+            String msgText = feedbackMessage.getMsgText();
+            String msgId = feedbackMessage.getMsgId();
+            String feedbackType = feedbackMessage.getFeedbackType();
+            System.out.println("msgId: " + msgId);
+
+            // GPT 피드백 생성
+            Feedback gptFeedback = gptService.handleFeedbackGPT(msgId, msgText, feedbackType);
+
+            // 요청한 피드백 유형만 포함된 JSON 생성
+            Object filteredFeedback = null;
+            switch (feedbackType.toLowerCase()) {
+                case "grammar" -> filteredFeedback = gptFeedback.getGrammar();
+                case "vocabulary" -> filteredFeedback = gptFeedback.getVocabulary();
+                case "formal / informal" -> filteredFeedback = gptFeedback.getFormalInformal();
+                default -> throw new IllegalArgumentException("Invalid feedback type: " + feedbackType);
+            }
+
+            // 필터링된 데이터만 JSON으로 변환 후 전송
+            String gptFeedbackResponse = objectMapper.writeValueAsString(filteredFeedback);
+            session.sendMessage(new TextMessage(gptFeedbackResponse));
+            System.out.println("전송된 피드백 데이터: " + gptFeedbackResponse);
+
+            feedbackRepository.save(gptFeedback);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     @Override
@@ -116,10 +165,14 @@ public class SocketVoiceHandler extends BinaryWebSocketHandler {
             chatMessage.setChatId(newChatId);
             chatMessage.setTimeStamp(LocalDateTime.now());
 
+            ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
+
+            String msgId = savedMessage.getId(); // 저장된 msgId를 가져옴
+            chatMessage.setId(msgId); // 클라이언트에 msgId도 전송 (후에 피드백 요청시 사용)
+
             String responseJson = mapper.writeValueAsString(chatMessage);
             session.sendMessage(new TextMessage(responseJson));
 
-            ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
             System.out.println("Generated Chat ID: " + savedMessage.getChatId().toString());
 
             // GPT API
