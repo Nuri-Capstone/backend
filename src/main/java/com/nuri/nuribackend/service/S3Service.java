@@ -2,6 +2,7 @@ package com.nuri.nuribackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
@@ -32,4 +33,13 @@ public class S3Service {
         // 업로드가 완료되면 버전 ID를 로그로 출력
         System.out.println("파일 업로드 완료, 버전: " + response.versionId());
     }
+
+
+    public String getFileUrl(String bucketName, String fileName) {
+        return "https://" + bucketName + ".s3." + Region.AP_NORTHEAST_2.id() + ".amazonaws.com/" + fileName;
+    }
+
+
+
+
 }
