@@ -11,6 +11,7 @@ import com.nuri.nuribackend.service.ChatMessageService;
 import com.nuri.nuribackend.service.S3Service;
 import com.nuri.nuribackend.service.TranscribeService;
 import com.nuri.nuribackend.service.GPTService;  // GPTService 추가
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -28,9 +29,7 @@ import software.amazon.awssdk.services.transcribe.model.TranscriptionJobStatus;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -43,7 +42,9 @@ public class SocketVoiceHandler extends AbstractWebSocketHandler {
     private final FeedbackRepository feedbackRepository;
     private final S3Service s3Service;
     private final GPTService gptService;  // GPTService
+    private final PollyService pollyService;
     private int newChatId;
+    ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
@@ -106,11 +107,17 @@ public class SocketVoiceHandler extends AbstractWebSocketHandler {
 
         try {
             processAudioData(session, audioData);
-            session.sendMessage(new BinaryMessage(ByteBuffer.wrap("Audio received".getBytes())));
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Audio received");
+            String jsonResponse = objectMapper.writeValueAsString(response);
+            session.sendMessage(new TextMessage(jsonResponse));
         } catch (Exception e) {
             log.error("Error processing audio data for session: {}", session.getId(), e);
             try {
-                session.sendMessage(new BinaryMessage(ByteBuffer.wrap("Error processing audio data".getBytes())));
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Error processing audio data");
+                String jsonResponse = objectMapper.writeValueAsString(response);
+                session.sendMessage(new TextMessage(jsonResponse));
             } catch (IOException ex) {
                 log.error("Error sending error message to client for session: {}", session.getId(), ex);
             }
@@ -181,6 +188,26 @@ public class SocketVoiceHandler extends AbstractWebSocketHandler {
             String gptResponseJson = mapper.writeValueAsString(gptMessage);
             session.sendMessage(new TextMessage(gptResponseJson));
             chatMessageRepository.save(gptMessage);
+
+            pollyService.initializePollyClient();
+            String audioFileName = "polly/" + "speech-" + UUID.randomUUID() + ".mp3";
+            try {
+                byte[] audioData = pollyService.synthesizeSpeechToByteArray(gptMessage.getMsgText());
+                s3Service.uploadByteArrayToS3(bucketName, audioFileName, audioData, "audio/mpeg");
+
+                // 클라이언트로 음성 URL 전달
+                String audioUrl = s3Service.getFileUrl(bucketName, audioFileName);
+
+                Map<String, String> response = new HashMap<>();
+                response.put("audioUrl", audioUrl); // S3 URL 추가
+                response.put("message", "Audio has been generated successfully");
+                String jsonResponse = objectMapper.writeValueAsString(response);
+
+                session.sendMessage(new TextMessage(jsonResponse));
+            } catch (Exception e) {
+                log.error("Error generating or sending Polly audio for session: {}", session.getId(), e);
+            }
+
         } else {
             System.out.println("Transcription Job Failed.");
         }
