@@ -100,13 +100,6 @@ public class SampleService {
         vocabularyFeedbacks[2] = "복합어를 적절히 활용하면 자연스러운 표현이 됩니다.";
         vocabularyFeedbacks[3] = "단어 선택이 문맥에 맞지 않아요. \"시작하다\"와 \"개시하다\"는 비슷하지만 상황에 따라 다릅니다.";
 
-        // 연령별 예시 피드백
-        String[] ageInGroupFeedbacks = new String[4];
-        ageInGroupFeedbacks[0] = "‘꿀잼’은 젊은 사람들이 자주 쓰는 표현이에요. 대신 ‘재미있어요’라고 말하면 누구나 이해할 수 있을 거예요.” 어르신들에게는 신조어 대신 기본적인 표현을 쓰는 게 더 좋아요. ‘정말 재미있었어요’로 바꿔 말해보면 어떨까요?";
-        ageInGroupFeedbacks[1] = "‘ROI’ 같은 전문 용어는 어린 학생들이 이해하기 어려워요. ‘이 프로젝트가 얼마나 잘 되는지’라고 쉽게 풀어서 설명해 보세요.";
-        ageInGroupFeedbacks[2] = "‘힙하다’라는 표현은 젊은 사람들이 주로 써요. 대신 ‘세련되셨어요’라고 말하면 어르신들에게 더 친근하게 들릴 거예요.”. 듣는 분의 연령에 따라 적합한 표현을 선택하면 더 자연스러운 대화가 될 수 있어요.";
-        ageInGroupFeedbacks[3] = "‘대박’ 대신 ‘정말 훌륭합니다’처럼 더 격식 있는 표현이 어르신들에게 적합해요.”. 어른들과 이야기할 땐 ‘아주 인상 깊었습니다’ 같은 표현을 써보세요.";
-
         // 경어체 예시 피드백
         String[] formalInformalFeedbacks = new String[4];
         formalInformalFeedbacks[0] = "높임말에서 간접 높임도 신경 쓰세요.";
@@ -126,10 +119,6 @@ public class SampleService {
             FeedbackContent vocabulary = new FeedbackContent();
             vocabulary.setContent(vocabularyFeedbacks[i]);
             feedback.setVocabulary(vocabulary);
-
-            FeedbackContent ageInGroup = new FeedbackContent();
-            ageInGroup.setContent(ageInGroupFeedbacks[i]);
-            feedback.setAgeInGroup(ageInGroup);
 
             FeedbackContent formalInformal = new FeedbackContent();
             formalInformal.setContent(formalInformalFeedbacks[i]);
@@ -151,10 +140,6 @@ public class SampleService {
         FeedbackContent vocabulary = new FeedbackContent();
         vocabulary.setContent("Vocabulary monthly feedback");
         monthlyFeedback.setVocabulary(vocabulary);
-
-        FeedbackContent ageInGroup = new FeedbackContent();
-        ageInGroup.setContent("Age group monthly feedback");
-        monthlyFeedback.setAgeInGroup(ageInGroup);
 
         FeedbackContent formalInformal = new FeedbackContent();
         formalInformal.setContent("Formality monthly feedback");

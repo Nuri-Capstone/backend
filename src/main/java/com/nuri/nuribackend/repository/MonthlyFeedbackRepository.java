@@ -6,10 +6,13 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 
 @Repository
 public interface MonthlyFeedbackRepository extends MongoRepository<MonthlyFeedback, String> {
 
     @Query("{ 'userId': ?0, $expr: { $and: [ { $eq: [ { $year: '$date' }, ?1 ] }, { $eq: [ { $month: '$date' }, ?2 ] } ] } }")
-    MonthlyFeedbackFromGPT findByUserIdAndYearAndMonth(Long userId, int year, int month);
+    MonthlyFeedback findByUserIdAndYearAndMonth(Long userId, int year, int month);
+
 }
