@@ -15,6 +15,5 @@ public class Feedback {
 
     private FeedbackContent grammar;
     private FeedbackContent vocabulary;
-    private FeedbackContent ageInGroup;
     private FeedbackContent FormalInformal;
 }

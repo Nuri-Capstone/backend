@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/home")
 public class HomeController {
@@ -30,7 +32,7 @@ public class HomeController {
 
     // 월별 피드백 조회 컨트롤러
     @GetMapping("/monthlyFeedback/{userId}/{year}/{month}")
-    public MonthlyFeedbackFromGPT getMonthlyFeedback(@PathVariable Long userId, @PathVariable int year, @PathVariable int month) {
+    public MonthlyFeedback getMonthlyFeedback(@PathVariable Long userId, @PathVariable int year, @PathVariable int month) {
         return monthlyFeedbackService.getMonthlyFeedback(userId, year, month);
     }
 }
