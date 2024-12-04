@@ -7,11 +7,7 @@ import com.nuri.nuribackend.repository.ChatMessageRepository;
 import com.nuri.nuribackend.domain.ChatMessage;
 import com.nuri.nuribackend.domain.Feedback.Feedback;
 import com.nuri.nuribackend.repository.FeedbackRepository;
-import com.nuri.nuribackend.service.ChatMessageService;
-import com.nuri.nuribackend.service.S3Service;
-import com.nuri.nuribackend.service.TranscribeService;
-import com.nuri.nuribackend.service.GPTService;  // GPTService 추가
-
+import com.nuri.nuribackend.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
