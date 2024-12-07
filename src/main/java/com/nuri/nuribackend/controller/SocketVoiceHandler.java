@@ -76,6 +76,16 @@ public class SocketVoiceHandler extends AbstractWebSocketHandler {
         }
 
         log.info("Voice Connected: {} - Total sessions: {}", session.getId(), sessions.size());
+:
+
+        // 클라이언트로 newChatId 전송
+        Map<String, Object> initialMessage = new HashMap<>();
+        initialMessage.put("type", "INITIAL");
+        initialMessage.put("chatId", newChatId);
+
+        String initialMessageJson = objectMapper.writeValueAsString(initialMessage);
+        session.sendMessage(new TextMessage(initialMessageJson));
+
     }
 
 
