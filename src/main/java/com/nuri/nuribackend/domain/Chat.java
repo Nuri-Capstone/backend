@@ -1,10 +1,12 @@
 package com.nuri.nuribackend.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Date;
 
@@ -23,6 +25,8 @@ public class Chat {
 
     @ManyToOne
     @JoinColumn(name = "id", referencedColumnName = "id", nullable = false)
+    @JsonBackReference
+    @ToString.Exclude
     private User user;
 
     @Column(name = "subject", nullable = true, columnDefinition = "TEXT")

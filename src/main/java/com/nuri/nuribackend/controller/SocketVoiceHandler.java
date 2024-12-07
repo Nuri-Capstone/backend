@@ -134,7 +134,7 @@ public class SocketVoiceHandler extends AbstractWebSocketHandler {
             Map<String, String> response = new HashMap<>();
             response.put("message", "Audio received");
             String jsonResponse = objectMapper.writeValueAsString(response);
-            session.sendMessage(new TextMessage(jsonResponse));
+            //session.sendMessage(new TextMessage(jsonResponse));
         } catch (Exception e) {
             log.error("Error processing audio data for session: {}", session.getId(), e);
             try {

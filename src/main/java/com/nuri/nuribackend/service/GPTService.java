@@ -132,14 +132,14 @@ public class GPTService {
                 String gptReply = gptResponse.getChoices().get(0).getMessage().getContent();
 
                 // 기존 데이터 조회
-                Optional<Feedback> existingFeedback = feedbackRepository.findById(msgId);
+                Optional<Feedback> existingFeedback = Optional.ofNullable(feedbackRepository.findByMsgId(msgId));
                 Feedback feedback;
 
                 if (existingFeedback.isPresent()) {
                     feedback = existingFeedback.get(); // 기존 데이터 가져오기 (중복 저장 방지)
                 } else {
                     feedback = new Feedback(); // 새 객체 생성
-                    feedback.setId(msgId);     // ID 설정
+                    feedback.setMsgId(msgId);     // ID 설정
                 }
 
                 // FeedbackContent 객체 생성 (피드백 내용)

@@ -1,12 +1,9 @@
 package com.nuri.nuribackend.repository;
 
 import com.nuri.nuribackend.domain.Feedback.MonthlyFeedback;
-import com.nuri.nuribackend.dto.Feedback.MonthlyFeedbackFromGPT;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
 
 
 @Repository
