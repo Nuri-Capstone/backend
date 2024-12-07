@@ -14,7 +14,7 @@ import java.util.Date;
 public class ChatDto {
 
     private Integer chatId;
-    private User user;
+//    private User user;
     private String subject;
     private String summary;
     private Date date;
@@ -23,7 +23,7 @@ public class ChatDto {
     public static ChatDto fromEntity(Chat chat) {
         return new ChatDto(
                 chat.getChatId(),
-                chat.getUser(),
+//                chat.getUser(),
                 chat.getSubject(),
                 chat.getSummary(),
                 chat.getDate(),

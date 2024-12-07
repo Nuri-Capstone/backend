@@ -15,7 +15,7 @@ public interface ChatRepository extends JpaRepository<Chat, Integer> {
     List<Integer> getChatIdList(Long userId, int year, int month);
 
     @Query("SELECT c FROM Chat c WHERE c.user.id = :userId")
-    List<Chat> findAllByUserId(Integer userId);
+    List<Chat> findAllByUserId(Long userId);
 
     Chat findByChatId(Integer chatId);
 }

@@ -48,6 +48,7 @@ public class SocketVoiceHandler extends AbstractWebSocketHandler {
     private final ChatService chatService;
     private final RankingRepository rankingRepository;
     private final RankingService rankingService;
+    private final ChatSummaryService chatSummaryService;
 
     private int newChatId;
     private String userName;
@@ -243,6 +244,7 @@ public class SocketVoiceHandler extends AbstractWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         sessions.remove(session);
         ChatDto chatDto = chatService.getChatByChatId(newChatId);
+        chatSummaryService.getChatSummary(newChatId);
 
         LocalDateTime localDateTime = chatDto.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         int year = localDateTime.getYear();

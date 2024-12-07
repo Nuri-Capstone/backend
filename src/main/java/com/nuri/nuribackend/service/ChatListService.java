@@ -15,7 +15,7 @@ public class ChatListService {
 
     private final ChatRepository chatRepository;
 
-    public List<ChatDto> getAllChatByUserId(Integer userId) {
+    public List<ChatDto> getAllChatByUserId(Long userId) {
         List<Chat> chatList = chatRepository.findAllByUserId(userId);
         return chatList.stream()
                 .map(ChatDto::fromEntity)

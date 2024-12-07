@@ -34,7 +34,6 @@ public class UserController {
     public ResponseEntity<UserDto> createUser(@RequestPart("email") String email,
                                               @RequestPart("name") String name,
                                               @RequestPart("password") String password) throws IOException {
-
         SignUpDto signUpDto = new SignUpDto();
 //        String key = "user-images/" + name;
 //        String s3Url = s3Service.uploadProfile("nuri-s3", key, userImg.getInputStream(), userImg.getContentType());

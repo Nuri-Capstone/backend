@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/chat")
+@RequestMapping("/api/msg")
 public class ChatMessageController {
 
     private final ChatMessageService chatMessageService;
@@ -20,6 +20,12 @@ public class ChatMessageController {
     public ResponseEntity<List<ChatMessageDto>> getMessagesByChatId(@PathVariable Integer chatId) {
         List<ChatMessageDto> messages = chatMessageService.getMessagesByChatId(chatId);
         return ResponseEntity.ok(messages);
+    }
+
+    @GetMapping("/summary/{chatId}")
+    public ResponseEntity<String> getSummaryByChatId(@PathVariable Integer chatId) {
+        String summary = chatMessageService.getSummaryByChatId(chatId);
+        return ResponseEntity.ok(summary);
     }
 }
 

@@ -1,6 +1,7 @@
 package com.nuri.nuribackend.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,6 +33,7 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)       // 1명의 사용자는 여러 채팅방 생성 가능
     @JsonIgnore
     @ToString.Exclude
+    @JsonManagedReference
     private List<Chat> chatList;
 
     @OneToMany(mappedBy = "user")        // 1명의 사용자에 대한 ranking 데이터는 1개 존재

@@ -30,6 +30,7 @@ public class SecurityConfig {
                 )
                 .authorizeRequests()
                 .requestMatchers("/ws/voice/**").permitAll()
+                .requestMatchers("/api/msg/**").permitAll()
                 .requestMatchers("/users/**").permitAll() // 특정 경로에 대해서는 허용
                 .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 .and()
