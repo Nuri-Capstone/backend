@@ -14,5 +14,9 @@ public interface ChatMessageRepository extends MongoRepository<ChatMessage, Stri
     @Query(value = "{ 'chatId' : ?0, 'msgType' : ?1 }")
     List<ChatMessage> findByChatIdAndMsgType(Integer chatId, String msgType);
 
+    @Query(value = "{ 'chatId' : ?0 }")
+    List<ChatMessage> findAllByChatId(Integer chatId);
+
     List<ChatMessage> findByChatId(Integer chatId);
+
 }
