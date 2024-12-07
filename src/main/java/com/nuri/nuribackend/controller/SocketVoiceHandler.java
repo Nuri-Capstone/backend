@@ -1,34 +1,36 @@
 package com.nuri.nuribackend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nuri.nuribackend.dto.ChatMessageDto;
+import com.nuri.nuribackend.domain.Ranking;
+import com.nuri.nuribackend.domain.User;
+import com.nuri.nuribackend.dto.ChatDto;
+import com.nuri.nuribackend.dto.Feedback.RankingDto;
 import com.nuri.nuribackend.dto.GPT.FeedbackMessage;
+import com.nuri.nuribackend.dto.User.UserDto;
 import com.nuri.nuribackend.repository.ChatMessageRepository;
 import com.nuri.nuribackend.domain.ChatMessage;
 import com.nuri.nuribackend.domain.Feedback.Feedback;
 import com.nuri.nuribackend.repository.FeedbackRepository;
-import com.nuri.nuribackend.service.ChatMessageService;
-import com.nuri.nuribackend.service.S3Service;
-import com.nuri.nuribackend.service.TranscribeService;
-import com.nuri.nuribackend.service.GPTService;  // GPTService 추가
+import com.nuri.nuribackend.repository.RankingRepository;
+import com.nuri.nuribackend.service.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.types.ObjectId;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
-import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.transcribe.TranscribeClient;
 import software.amazon.awssdk.services.transcribe.model.TranscriptionJobStatus;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 @Slf4j
@@ -38,18 +40,40 @@ public class SocketVoiceHandler extends AbstractWebSocketHandler {
     private final ObjectMapper mapper;
     private final Set<WebSocketSession> sessions = new HashSet<>();
     private final ChatMessageRepository chatMessageRepository;
-    private final ChatMessageService chatMessageService;
+    private final UserService userService;
     private final FeedbackRepository feedbackRepository;
     private final S3Service s3Service;
     private final GPTService gptService;  // GPTService
     private final PollyService pollyService;
+    private final ChatService chatService;
+    private final RankingRepository rankingRepository;
+    private final RankingService rankingService;
+
     private int newChatId;
+    private String userName;
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) {
-        sessions.add(session);
-        newChatId = generateNewChatId();
+    public void afterConnectionEstablished(WebSocketSession session) throws IOException{
+        Map<String, Object> attributes = session.getAttributes();
+        userName = (String) attributes.get("user_name");
+        System.out.println(userName);
+        UserDto userDto = userService.getUserByUserName(userName);
+        ChatDto chatDto= new ChatDto();
+
+        chatDto.setUser(userDto.toEntity());
+        chatDto.setDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
+        chatDto.setUser_msg_cnt(0);
+        ChatDto savedChat = chatService.addChat(chatDto);
+        newChatId = savedChat.getChatId();
+
+        if (userName != null) {
+            System.out.println("Authenticated User: " + userName);
+        } else {
+            System.out.println("No user information found in session attributes");
+            session.close(CloseStatus.NOT_ACCEPTABLE);
+        }
+
         log.info("Voice Connected: {} - Total sessions: {}", session.getId(), sessions.size());
     }
 
@@ -153,7 +177,6 @@ public class SocketVoiceHandler extends AbstractWebSocketHandler {
         String transcriptionJobName = transcribeService.startTranscriptionJob(bucketName, url, jobName);
         System.out.println("Started Transcription Job: " + transcriptionJobName);
 
-
         TranscriptionJobStatus status;
         do {
             status = transcribeService.checkTranscriptionJobStatus(transcriptionJobName);
@@ -170,9 +193,9 @@ public class SocketVoiceHandler extends AbstractWebSocketHandler {
             chatMessage.setMsgText(result);
             chatMessage.setMsgSound(url);
             chatMessage.setChatId(newChatId);
-            chatMessage.setTimeStamp(LocalDateTime.now());
-
+            chatMessage.setTimeStamp(LocalDateTime.now().atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime());
             ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
+            chatService.addChatCnt(newChatId);
 
             String msgId = savedMessage.getId(); // 저장된 msgId를 가져옴
             chatMessage.setId(msgId); // 클라이언트에 msgId도 전송 (후에 피드백 요청시 사용)
@@ -216,11 +239,42 @@ public class SocketVoiceHandler extends AbstractWebSocketHandler {
     }
 
 
-
-
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         sessions.remove(session);
+        ChatDto chatDto = chatService.getChatByChatId(newChatId);
+
+        LocalDateTime localDateTime = chatDto.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        int year = localDateTime.getYear();
+        int month = localDateTime.getMonthValue();
+
+        Map<String, Object> attributes = session.getAttributes();
+        userName = (String) attributes.get("user_name");
+        System.out.println(userName);
+        UserDto userDto = userService.getUserByUserName(userName);
+
+        Optional<Ranking> optionalRanking = rankingRepository.findByUserIdAndYearAndMonth(userDto.getId(), year, month);
+
+        RankingDto rankingDto;
+        // 사용자가 year.month 날짜에 대화를 하지 않은 경우
+        if (!optionalRanking.isPresent()) {
+            rankingDto = new RankingDto();
+
+            rankingDto.setUser(userDto.toEntity());
+            rankingDto.setMsgTotalCnt(chatDto.getUser_msg_cnt());
+
+            Date saveToDate = new Date(year-1900, month-1, 1);
+            rankingDto.setDate(saveToDate);
+        }
+        // 사용자가 year.month 날짜에 대화를 한 경우
+        else {
+            Ranking ranking = optionalRanking.get();
+            rankingDto = new RankingDto();
+            rankingDto = rankingDto.toDto(ranking);
+            rankingDto.setMsgTotalCnt(rankingDto.getMsgTotalCnt() + chatDto.getUser_msg_cnt());
+        }
+
+        rankingService.addRanking(rankingDto);
         log.info("Voice Disconnected: {} - CloseStatus: {} - Remaining sessions: {}", session.getId(), status, sessions.size());
     }
 

@@ -27,7 +27,7 @@ public class HomeController {
     public String getRanking() {
         // rankingService 호출해서 데이터 받아오기
         // 받아온 데이터 모델에 담아서 프론트에 넘겨주기
-        return "";
+        return "success";
     }
 
     // 월별 피드백 조회 컨트롤러
