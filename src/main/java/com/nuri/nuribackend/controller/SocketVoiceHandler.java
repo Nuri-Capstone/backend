@@ -76,7 +76,7 @@ public class SocketVoiceHandler extends AbstractWebSocketHandler {
         }
 
         log.info("Voice Connected: {} - Total sessions: {}", session.getId(), sessions.size());
-:
+
 
         // 클라이언트로 newChatId 전송
         Map<String, Object> initialMessage = new HashMap<>();
@@ -254,7 +254,7 @@ public class SocketVoiceHandler extends AbstractWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         sessions.remove(session);
         ChatDto chatDto = chatService.getChatByChatId(newChatId);
-        chatSummaryService.getChatSummary(newChatId);
+        //chatSummaryService.getChatSummary(newChatId);
 
         LocalDateTime localDateTime = chatDto.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         int year = localDateTime.getYear();
