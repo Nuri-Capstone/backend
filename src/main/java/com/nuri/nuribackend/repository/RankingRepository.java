@@ -17,4 +17,6 @@ public interface RankingRepository extends JpaRepository<Ranking, Integer> {
     @Query(value = "SELECT id, SUM(msg_total_cnt) as msg_total FROM ranking WHERE id IN (:userIds) GROUP BY id;", nativeQuery = true)
     List<Object[]> getMsgCnt(@Param("userIds") List<Long> userIds);
 
+    @Query("SELECT r FROM Ranking r WHERE r.user.id = :userId")
+    List<Ranking> findByUserId(@Param("userId") Long userId);
 }

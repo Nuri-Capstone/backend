@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/home")
 public class HomeController {
@@ -34,6 +37,12 @@ public class HomeController {
     public ResponseEntity<Integer> getUserRanking(@PathVariable Long userId) {
         int userRanking = rankingService.getUserRanking(userId);
         return ResponseEntity.ok(userRanking);
+    }
+
+    // 특정 사용자의 월별 대화 수 조회 컨트롤러
+    @GetMapping("/graph/{userId}")
+    public Map<LocalDate, Integer> getGraph(@PathVariable Long userId) {
+        return rankingService.getGraph(userId);
     }
 
     // 월별 피드백 조회 컨트롤러
