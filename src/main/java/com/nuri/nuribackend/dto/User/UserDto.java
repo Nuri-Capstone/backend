@@ -1,11 +1,38 @@
-package com.nuri.nuribackend.dto;
+package com.nuri.nuribackend.dto.User;
 
-import lombok.Data;
+import com.nuri.nuribackend.domain.User;
+import lombok.*;
 
-@Data
+
+@Getter
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class UserDto {
     private Long id;
-    private Long userId;
-    private String password;
+    private String email;
+    private String name;
+    private String userImg;
+
+
+    static public UserDto toDto(User user){
+        return UserDto.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .name(user.getName())
+                .userImg(user.getUserImg())
+                .build();
+    }
+
+    public User toEntity(){
+        return User.builder()
+                .id(id)
+                .email(email)
+                .name(name)
+                .userImg(userImg)
+                .build();
+    }
+
 }
 
