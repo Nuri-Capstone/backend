@@ -14,4 +14,7 @@ public interface RankingRepository extends JpaRepository<Ranking, Integer> {
     @Query(value = "SELECT * FROM ranking WHERE id = :userId AND EXTRACT(YEAR FROM date) = :year AND EXTRACT(MONTH FROM date) = :month", nativeQuery = true)
     Optional<Ranking> findByUserIdAndYearAndMonth(@Param("userId") Long userId, @Param("year") int year, @Param("month") int month);
 
+    @Query(value = "SELECT id, SUM(msg_total_cnt) as msg_total FROM ranking WHERE id IN (:userIds) GROUP BY id;", nativeQuery = true)
+    List<Object[]> getMsgCnt(@Param("userIds") List<Long> userIds);
+
 }
