@@ -44,12 +44,9 @@ public class SampleService {
     MonthlyFeedback monthlyFeedback = new MonthlyFeedback();
 
     public void saveUser() {
-
-        user.setUserId("nuri");
         user.setEmail("nuri@gmail.com");
         user.setPassword("nuri");
         user.setName("nuri");
-        user.setAge(24);
 
         userRepository.save(user);
     }

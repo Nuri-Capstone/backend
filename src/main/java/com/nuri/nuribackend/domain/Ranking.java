@@ -1,19 +1,24 @@
 package com.nuri.nuribackend.domain;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.util.Date;
 
 @Data
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "ranking")
 public class Ranking {
 
     @Id
+    @Column(name = "ranking_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer rankingId;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "id", referencedColumnName = "id", nullable = false)
     private User user;
 

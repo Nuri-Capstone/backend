@@ -4,9 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.InputSerialization;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.core.sync.RequestBody;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 @Service
 public class S3Service {
@@ -35,6 +39,16 @@ public class S3Service {
     }
 
 
+    public String uploadProfile(String bucketName, String key, InputStream inputStream, String contentType) throws IOException {
+        PutObjectRequest request = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .contentType(contentType)
+                .build();
+
+        s3Client.putObject(request, RequestBody.fromInputStream(inputStream, inputStream.available()));
+        return String.format("https://%s.s3.amazonaws.com/%s", bucketName, key);
+    }
     public String getFileUrl(String bucketName, String fileName) {
         return "https://" + bucketName + ".s3." + Region.AP_NORTHEAST_2.id() + ".amazonaws.com/" + fileName;
     }
