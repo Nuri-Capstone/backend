@@ -4,7 +4,6 @@ import com.nuri.nuribackend.domain.ChatMessage;
 import com.nuri.nuribackend.domain.Feedback.Feedback;
 import com.nuri.nuribackend.domain.Feedback.FeedbackContent;
 import com.nuri.nuribackend.domain.Feedback.MonthlyFeedback;
-import com.nuri.nuribackend.dto.Feedback.MonthlyFeedbackFromGPT;
 import com.nuri.nuribackend.repository.ChatMessageRepository;
 import com.nuri.nuribackend.repository.ChatRepository;
 import com.nuri.nuribackend.repository.FeedbackRepository;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -42,7 +40,39 @@ public class MonthlyFeedbackService {
         this.openAiService = openAiService;
     }
 
+    // 버치처리시 월별 피드백 조회하는 서비스 로직
     public MonthlyFeedback getMonthlyFeedback(Long userId, int year, int month) {
+        // 현재 년도, 월 구하기
+        Calendar current = Calendar.getInstance();
+        int currentYear = current.get(Calendar.YEAR);
+        int currentMonth = current.get(Calendar.MONTH) + 1;     // 0부터 시작함 (0 = 1월, 11 = 12월)
+
+        log.info("currentYear: " + currentYear);
+        log.info("currentMonth: " + currentMonth);
+
+        MonthlyFeedback monthlyFeedback = monthlyFeedbackRepository.findByUserIdAndYearAndMonth(userId, year, month);
+
+        /*
+        미래 달의 피드백을 조회하는 경우
+        1. 사용자가 입력한 year가 currentYear보다 큰 경우
+        2. 사용자가 입력한 year가 currentYear보다 크거나 같고, 사용자가 입력한 month가 currentMonth보다 큰 경우
+        */
+        if (currentYear < year || (currentYear == year && currentMonth < month) || monthlyFeedback == null) {
+            MonthlyFeedback emptyFeedback = new MonthlyFeedback();
+            FeedbackContent content = new FeedbackContent();
+            content.setContent("피드백이 존재하지 않습니다.");
+
+            emptyFeedback.setGrammar(content);
+            emptyFeedback.setVocabulary(content);
+            emptyFeedback.setFormalInformal(content);
+
+            return emptyFeedback;
+        }
+
+        return monthlyFeedback;
+    }
+
+    public MonthlyFeedback getMonthlyFeedback1(Long userId, int year, int month) {
         // 현재 년도, 월 구하기
         Calendar current = Calendar.getInstance();
         int currentYear = current.get(Calendar.YEAR);

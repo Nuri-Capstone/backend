@@ -17,4 +17,6 @@ public interface ChatMessageRepository extends MongoRepository<ChatMessage, Stri
     @Query(value = "{ 'chatId' : ?0 }")
     List<ChatMessage> findAllByChatId(Integer chatId);
 
+    List<ChatMessage> findByChatId(Integer chatId);
+
 }

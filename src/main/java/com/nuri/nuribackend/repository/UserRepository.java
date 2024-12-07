@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    @Query(value = "SELECT u.id FROM User u", nativeQuery = true)
+    @Query(value = "SELECT id FROM users", nativeQuery = true)
     List<Long> findAllUserIds();
 }

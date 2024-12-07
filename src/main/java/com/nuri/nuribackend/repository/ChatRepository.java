@@ -1,6 +1,7 @@
 package com.nuri.nuribackend.repository;
 
 import com.nuri.nuribackend.domain.Chat;
+import com.nuri.nuribackend.domain.ChatMessage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -15,4 +16,6 @@ public interface ChatRepository extends JpaRepository<Chat, Integer> {
 
     @Query("SELECT c FROM Chat c WHERE c.user.id = :userId")
     List<Chat> findAllByUserId(Integer userId);
+
+    Chat findByChatId(Integer chatId);
 }

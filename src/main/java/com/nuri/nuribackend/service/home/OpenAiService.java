@@ -1,5 +1,6 @@
 package com.nuri.nuribackend.service.home;
 
+import com.nuri.nuribackend.domain.ChatMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -74,5 +75,40 @@ public class OpenAiService {
             }
         }
         return "";
+    }
+
+    public String getChatSummary(List<ChatMessage> messages) {
+
+        StringBuilder sb = new StringBuilder();
+        for (int m = 0; m < messages.size(); m++) {
+            sb.append(messages.get(m)).append(", ");
+        }
+        String conversation = sb.toString();
+        log.info("채팅방 메시지: " + conversation);
+
+        String prompt = String.format("%s는 대화 내용이야. 대화 내용을 분석해서 대화를 20글자 이내로 요약해줘." +
+                "요약의 마지막은 \"이야기\"라는 단어로 끝맺음 지어줘."
+                , conversation);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + apiKey);
+        headers.set("Content-Type", "application/json");
+
+        Map<String, Object> requestBody = Map.of(
+                "model", "gpt-4o",
+                "messages", List.of(
+                        Map.of("role", "user", "content", prompt)
+                ),
+                "max_tokens", 60
+        );
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+
+        ResponseEntity<Map> response = restTemplate.exchange(apiUrl, HttpMethod.POST, entity, Map.class);
+        List<Map<String, Object>> choices = (List<Map<String, Object>>) response.getBody().get("choices");
+
+        Map<String, String> message = (Map<String, String>) choices.get(0).get("message");
+
+        return message.get("content");
     }
 }
