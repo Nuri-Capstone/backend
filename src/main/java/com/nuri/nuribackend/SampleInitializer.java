@@ -15,10 +15,10 @@ public class SampleInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        sampleService.saveUser();
-        sampleService.saveChat();
-        sampleService.saveChatMessage();
-        sampleService.saveFeedbackSample();
-        sampleService.saveMonthlyFeedbackSample();
+//        sampleService.saveUser();
+//        sampleService.saveChat();
+//        sampleService.saveChatMessage();
+//        sampleService.saveFeedbackSample();
+//        sampleService.saveMonthlyFeedbackSample();
     }
 }
