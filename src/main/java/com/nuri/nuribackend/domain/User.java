@@ -36,7 +36,7 @@ public class User {
     @JsonManagedReference
     private List<Chat> chatList;
 
-    @OneToMany(mappedBy = "user")        // 1명의 사용자에 대해 여러 ranking 데이터 존재
+    @OneToMany(mappedBy = "user")        // 1명의 사용자에 대한 ranking 데이터는 1개 존재
     @ToString.Exclude
     private List<Ranking> ranking;
 }

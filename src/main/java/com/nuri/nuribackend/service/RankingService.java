@@ -49,6 +49,11 @@ public class RankingService {
         return allUser;
     }
 
+    public int getDistinctUser() {
+        List<Object> userIds = rankingRepository.findAllRankingsGroupedByUserId();
+        return userIds.size();
+    }
+
     public int getUserRanking(Long userId) {
         // Long: userId, Integer: msgCnt
         List<Long> userIds = userRepository.findAllUserIds();
@@ -57,7 +62,7 @@ public class RankingService {
         // results를 Integer(msgCnt)를 기준으로 내림차순 정렬
         results.sort((o1, o2) -> Long.compare((Long) o2[1], (Long) o1[1]));
 
-        int userRanking = -1; // 순위 초기값
+        int userRanking = 0; // 순위 초기값
         for (int i = 0; i < results.size(); i++) {
             if (results.get(i)[0].equals(userId)) {
                 userRanking = i + 1; // 순위는 인덱스 + 1
