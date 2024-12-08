@@ -19,4 +19,9 @@ public interface RankingRepository extends JpaRepository<Ranking, Integer> {
 
     @Query("SELECT r FROM Ranking r WHERE r.user.id = :userId")
     List<Ranking> findByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT COUNT(*) " +
+            "FROM Ranking r " +
+            "GROUP BY r.user.id")
+    List<Object> findAllRankingsGroupedByUserId();
 }

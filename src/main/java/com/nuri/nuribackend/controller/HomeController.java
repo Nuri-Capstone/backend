@@ -28,7 +28,7 @@ public class HomeController {
 
     @GetMapping("/ranking/allUsers")
     public ResponseEntity<Integer> getAllUserCount() {
-        int allUser = rankingService.getAllUser();
+        int allUser = rankingService.getDistinctUser();
         return ResponseEntity.ok(allUser);
     }
 
