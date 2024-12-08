@@ -49,7 +49,13 @@ public class GPTService {
         Map<String, String> userMessage = new HashMap<>();
         userMessage.put("role", "user");
         userMessage.put("content", result);
-        List<Map<String, String>> messages = List.of(userMessage);
+
+        Map<String, String> system = Map.of("role", "system", "content", "무조건 반말로 대답해");
+//        List<Map<String, String>> messages = List.of(system, user);
+        List<Map<String, String>> messages = List.of(system, userMessage);
+
+
+
 
         // GPT 요청 생성
         Map<String, Object> gptRequest = Map.of(
