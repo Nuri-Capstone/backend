@@ -20,7 +20,7 @@ public class OpenAiService {
     @Value("${openai.api.key}") // application.yml 파일에 저장되어 있는 key를 불러옴
     private String apiKey;
 
-    @Value("${openai.api.url}") // application.yml 파일에 저장되어 있는 url을 불러옴
+    @Value("${openai.api.url1}") // application.yml 파일에 저장되어 있는 url을 불러옴
     private String apiUrl;
 
     private final RestTemplate restTemplate = new RestTemplate();
@@ -87,7 +87,7 @@ public class OpenAiService {
         log.info("채팅방 메시지: " + conversation);
 
         String prompt = String.format("%s는 대화 내용이야. 대화 내용을 분석해서 대화를 20글자 이내로 요약해줘." +
-                "요약의 마지막은 \"이야기\"라는 단어로 끝맺음 지어줘."
+                        "요약의 마지막은 \"이야기\"라는 단어로 끝맺음 지어줘."
                 , conversation);
 
         HttpHeaders headers = new HttpHeaders();
@@ -112,3 +112,4 @@ public class OpenAiService {
         return message.get("content");
     }
 }
+
