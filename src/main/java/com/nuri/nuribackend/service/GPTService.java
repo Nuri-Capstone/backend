@@ -32,7 +32,7 @@ public class GPTService {
     private final ChatMessageRepository chatMessageRepository;
     private final FeedbackRepository feedbackRepository;
 
-    @Value("${openai.api.url1}")
+    @Value("${openai.api.url}")
     private String apiUrl;
 
     @Value("${openai.api.model.chat}")
