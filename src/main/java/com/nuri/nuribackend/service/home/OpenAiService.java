@@ -20,7 +20,7 @@ public class OpenAiService {
     @Value("${openai.api.key}") // application.yml 파일에 저장되어 있는 key를 불러옴
     private String apiKey;
 
-    @Value("${openai.api.url1}") // application.yml 파일에 저장되어 있는 url을 불러옴
+    @Value("${openai.api.url}") // application.yml 파일에 저장되어 있는 url을 불러옴
     private String apiUrl;
 
     private final RestTemplate restTemplate = new RestTemplate();
